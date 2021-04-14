@@ -1,6 +1,6 @@
 name: multi_repo_tester
-description: A simple command-line application.
-# version: 0.0.2
+description: A multi repository tester.
+version: 0.0.3
 # homepage: https://www.example.com
 
 environment:
@@ -11,6 +11,7 @@ dependencies:
   process_run: ^0.12.1
   actors: ^0.7.0
   args: ^2.0.0
+  dartx: ^0.7.1
 
 dev_dependencies:
   pedantic: ^1.11.0

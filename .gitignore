@@ -8,3 +8,4 @@ build/
 # Directory created by dartdoc
 doc/api/
 .idea
+/multi_repo_tester.exe
