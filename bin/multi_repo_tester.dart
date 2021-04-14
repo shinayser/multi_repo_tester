@@ -6,9 +6,13 @@ import 'package:path/path.dart' as path;
 import 'package:process_run/shell.dart';
 
 void main(List<String> arguments) async {
-  final parser = ArgParser()..addOption('prefix', abbr: 'p');
+  final parser = ArgParser()
+    ..addOption('prefix', abbr: 'p')
+    ..addFlag('fvm', abbr: 'f');
+
   final argsResult = parser.parse(arguments);
   final prefix = argsResult['prefix'];
+  final fvm = argsResult['fvm'] as bool;
 
   if (prefix == null) {
     throw 'You must provide a package prefix parameter (-p)';
@@ -17,7 +21,11 @@ void main(List<String> arguments) async {
   var subDirectories = Directory.current
       .listSync()
       .where((e) => checkDirectoryValidForTest(e, prefix))
-      .map((e) => startTestForDirectory(e, prefix));
+      .map((e) => startTestForDirectory(
+            directoryPath: e.path,
+            prefix: prefix,
+            usesFVM: fvm,
+          ));
 
   await Future.wait(subDirectories);
   print('All tests passed.');
@@ -37,14 +45,17 @@ bool checkDirectoryValidForTest(FileSystemEntity entity, String prefix) {
   return false;
 }
 
-Future<void> startTestForDirectory(
-    FileSystemEntity entity, String prefix) async {
-  var folderName = path.basename(entity.path);
+Future<void> startTestForDirectory({
+  required String directoryPath,
+  required String prefix,
+  bool usesFVM = false,
+}) async {
+  var folderName = path.basename(directoryPath);
 
   if (folderName.startsWith(prefix)) {
     var actor = Actor.of(executeFlutterTest);
     try {
-      final result = await actor.send(path.canonicalize(entity.path));
+      final result = await actor.send(path.canonicalize(directoryPath));
       actor.close();
 
       if (result.exitCode != 0) {
@@ -58,11 +69,16 @@ Future<void> startTestForDirectory(
   }
 }
 
-Future<ProcessResult> executeFlutterTest(String folderPath) async {
+Future<ProcessResult> executeFlutterTest(
+  String folderPath, [
+  bool usesFVM = false,
+]) async {
   final shell = Shell(
     workingDirectory: path.canonicalize(folderPath),
     runInShell: false,
   );
 
-  return shell.run('flutter test').then((value) => value.first);
+  return shell
+      .run(usesFVM ? 'fvm flutter test' : 'flutter test')
+      .then((value) => value.first);
 }

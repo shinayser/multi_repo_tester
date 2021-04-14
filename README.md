@@ -5,9 +5,12 @@ A repo tester for multi modules Flutter app.
 
 To compile this project you must execute:
 
-`dart compile exe multi_repo_tester.dart`
+`dart compile exe bin/multi_repo_tester.dart -o multi_repo_tester.exe`
 
-The "exe" parameter refers to a self contained binary, this is not related to Windows 'exe' files.
+This command will generate a "exe" on the root of the project.The "exe" parameter refers to a self contained binary, this is not related to Windows 'exe' files.
+
+## Options
+* `--fvm` or `-f`, set this flag if your use FVM (Flutter version Manager) to test your stuff.
 
 # Usage
 
