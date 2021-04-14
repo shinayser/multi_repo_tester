@@ -1,0 +1,37 @@
+name: Build on push
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+#         os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        include:
+          - os: ubuntu-latest
+            output-name: multi_repo_tester-linux
+          - os: macOS-latest
+            output-name: multi_repo_tester-mac
+          - os: windows-latest
+            output-name: multi_repo_tester-windows.exe
+
+#    container:
+#      image:  google/dart:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DanTup/gh-actions/setup-dart@master
+    - name: Install dependencies
+      run: pub get
+    - name: Make build directory
+      run: mkdir build
+    - name: Make output object
+      run: dart compile exe bin/multi_repo_tester.dart -o build/${{ matrix.output-name }}
+    - uses: actions/upload-artifact@v1
+      with:
+        name: native-executables
+        path: build
